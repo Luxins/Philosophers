@@ -2,7 +2,7 @@
 
 int	check_death(t_philo *philo)
 {
-	if (philo->treshi.ttd < _time(NULL))
+	if (philo->treshi.ttd < _time() - philo->last_eaten)
 	{
 		pthread_mutex_lock(&philo->global->dead.mut);
 		philo->global->dead.var = 1;
@@ -10,7 +10,7 @@ int	check_death(t_philo *philo)
 	}
 	if (philo->global->dead.var)
 	{
-		printf("%llu died\n", entire_time(NULL));
+		printf("%llu %llu %d died\n", _time() - philo->start_of_exec, _time() - philo->last_eaten, philo->id);
 		return (1);
 	}
 	return (0);
@@ -41,8 +41,8 @@ void	*surpressor(void *arg)
 	unsigned long long	temp;
 
 	philo = (t_philo *)arg;
-	init_entire_time();
-	init_time();
+	philo->last_eaten = _time();
+	philo->start_of_exec = _time();
 	while (1)
 	{
 		if (check_death(philo))
@@ -55,28 +55,29 @@ void	*surpressor(void *arg)
 				return (NULL);
 			philo->eating = 0;
 			philo->sleeping = 1;
-			printf("%llu %d Thinking\n", entire_time(NULL), philo->id);
+			printf("%llu %d Thinking\n", _time() - philo->start_of_exec, philo->id);
 			if (philo->id % 2 == 0)
 			{
 				pthread_mutex_lock(&philo->global->forks[philo->id]);
-				// if (1)
-				// {
-				// 	printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time(NULL), philo->id);
-				// }
-				printf("%llu %d Takeing left fork\n", entire_time(NULL), philo->id);
+				if (check_death(philo))
+				{
+					printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time() - philo->last_eaten, philo->id);
+					return (NULL);
+				}
+				printf("%llu %d Takeing left fork\n", _time() - philo->start_of_exec, philo->id);
 				pthread_mutex_lock(&philo->global->forks[(philo->id + 1) % philo->total]);
-				printf("%llu %d Takeing right fork\n", entire_time(NULL), philo->id);
-				printf("%llu %d Eating\n", entire_time(NULL), philo->id);
-				init_time();
+				printf("%llu %d Takeing right fork\n", _time() - philo->start_of_exec, philo->id);
+				printf("%llu %d Eating\n", _time() - philo->start_of_exec, philo->id);
+				philo->last_eaten = _time();
 				philo->times_eaten++;
 				if (philo->times_eaten >= philo->treshi.tste)
 				{
-					printf("%llu %d Ate often enough\n", entire_time(NULL), philo->id);
+					printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
 					pthread_mutex_unlock(&philo->global->forks[philo->id]);
 					pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
 					return (NULL);
 				}
-				while (_time(NULL) <= philo->advs.tte)
+				while (_time() - philo->last_eaten <= philo->advs.tte)
 				{
 					if (check_death(philo))
 					{
@@ -91,24 +92,25 @@ void	*surpressor(void *arg)
 			else
 			{
 				pthread_mutex_lock(&philo->global->forks[(philo->id + 1) % philo->total]);
-				// if (1)
-				// {
-				// 	printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time(NULL), philo->id);
-				// }
-				printf("%llu %d Takeing right fork\n", entire_time(NULL), philo->id);
+				if (check_death(philo))
+				{
+					printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time() - philo->last_eaten, philo->id);
+					return (NULL);
+				}
+				printf("%llu %d Takeing right fork\n", _time() - philo->start_of_exec, philo->id);
 				pthread_mutex_lock(&philo->global->forks[philo->id]);
-				printf("%llu %d Takeing left fork\n", entire_time(NULL), philo->id);
-				printf("%llu %d Eating\n", entire_time(NULL), philo->id);
-				init_time();
+				printf("%llu %d Takeing left fork\n", _time() - philo->start_of_exec, philo->id);
+				printf("%llu %d Eating\n", _time() - philo->start_of_exec, philo->id);
+				philo->last_eaten = _time();
 				philo->times_eaten++;
 				if (philo->times_eaten >= philo->treshi.tste)
 				{
-					printf("%llu %d Ate often enough\n", entire_time(NULL), philo->id);
+					printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
 					pthread_mutex_unlock(&philo->global->forks[philo->id]);
 					pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
 					return (NULL);
 				}
-				while (_time(NULL) <= philo->advs.tte)
+				while (_time() - philo->last_eaten <= philo->advs.tte)
 				{
 					if (check_death(philo))
 					{
@@ -127,12 +129,15 @@ void	*surpressor(void *arg)
 				return (NULL);
 			philo->sleeping = 0;
 			philo->eating = 1;
-			printf("%llu %d Sleeping\n", entire_time(NULL), philo->id);
-			temp = _time(NULL);
-			while(_time(NULL) - temp < philo->advs.tts)
+			printf("%llu %d Sleeping\n", _time() - philo->start_of_exec, philo->id);
+			philo->last_sleep = _time();
+			while(_time() - philo->last_sleep - temp < philo->advs.tts)
 			{
 				if (check_death(philo))
+				{
+					printf("DEATH UPON AWAKENING\n");
 					return (NULL);
+				}
 			}
 		}
 	}

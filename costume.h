@@ -13,11 +13,8 @@
 // # define TSTE 5
 
 //			time.c
-void				init_time(void);
-unsigned long long	_time(unsigned long long	*init);
+unsigned long long	_time(void);
 int					ft_atoi(const char *str);
-void				init_entire_time(void);
-unsigned long long	entire_time(unsigned long long	*init);
 
 typedef struct s_treshold
 {
@@ -45,16 +42,19 @@ typedef struct s_global
 
 typedef struct s_philo
 {
-	int			total;
-	int			id;
-	int			eating;
-	int			sleeping;
-	int			dead;
-	int			eat_end;
-	int			times_eaten;
-	t_adv		advs;
-	t_treshold	treshi;
-	t_global	*global;
+	int					total;
+	int					id;
+	int					eating;
+	int					sleeping;
+	int					dead;
+	int					eat_end;
+	int					times_eaten;
+	unsigned long long	last_eaten;
+	unsigned long long	start_of_exec;
+	unsigned long long	last_sleep;
+	t_adv				advs;
+	t_treshold			treshi;
+	t_global			*global;
 }	t_philo;
 
 #endif
