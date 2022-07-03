@@ -16,17 +16,6 @@ int	check_death(t_philo *philo)
 	return (0);
 }
 
-int	check_stomach(t_philo *philo)
-{
-	if (philo->global->eat_end.var)
-	{
-		printf("TEST: EAT END\n");
-		return (1);
-	}
-	pthread_mutex_unlock(&philo->global->eat_end.mut);
-	return (0);
-}
-
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 {
 	static int	testing = 0;
@@ -56,13 +45,13 @@ void	*surpressor(void *arg)
 	init_time();
 	while (1)
 	{
-		if (check_death(philo) || check_stomach(philo))
+		if (check_death(philo))
 			return (NULL);
 		if (!philo->eating && !philo->sleeping)
 			philo->eating = 1;
 		else if (philo->eating)
 		{
-			if (check_death(philo) || check_stomach(philo))
+			if (check_death(philo))
 				return (NULL);
 			philo->eating = 0;
 			philo->sleeping = 1;
@@ -70,6 +59,10 @@ void	*surpressor(void *arg)
 			if (philo->id % 2 == 0)
 			{
 				pthread_mutex_lock(&philo->global->forks[philo->id]);
+				// if (1)
+				// {
+				// 	printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time(NULL), philo->id);
+				// }
 				printf("%llu %d Takeing left fork\n", entire_time(NULL), philo->id);
 				pthread_mutex_lock(&philo->global->forks[(philo->id + 1) % philo->total]);
 				printf("%llu %d Takeing right fork\n", entire_time(NULL), philo->id);
@@ -79,15 +72,18 @@ void	*surpressor(void *arg)
 				if (philo->times_eaten >= philo->treshi.tste)
 				{
 					printf("%llu %d Ate often enough\n", entire_time(NULL), philo->id);
-					pthread_mutex_lock(&philo->global->eat_end.mut);
-					philo->global->eat_end.var = 1;
-					pthread_mutex_unlock(&philo->global->eat_end.mut);
+					pthread_mutex_unlock(&philo->global->forks[philo->id]);
+					pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
 					return (NULL);
 				}
 				while (_time(NULL) <= philo->advs.tte)
 				{
-					if (check_death(philo) || check_stomach(philo))
+					if (check_death(philo))
+					{
+						pthread_mutex_unlock(&philo->global->forks[philo->id]);
+						pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
 						return (NULL);
+					}
 				}
 				pthread_mutex_unlock(&philo->global->forks[philo->id]);
 				pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
@@ -95,6 +91,10 @@ void	*surpressor(void *arg)
 			else
 			{
 				pthread_mutex_lock(&philo->global->forks[(philo->id + 1) % philo->total]);
+				// if (1)
+				// {
+				// 	printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time(NULL), philo->id);
+				// }
 				printf("%llu %d Takeing right fork\n", entire_time(NULL), philo->id);
 				pthread_mutex_lock(&philo->global->forks[philo->id]);
 				printf("%llu %d Takeing left fork\n", entire_time(NULL), philo->id);
@@ -104,15 +104,18 @@ void	*surpressor(void *arg)
 				if (philo->times_eaten >= philo->treshi.tste)
 				{
 					printf("%llu %d Ate often enough\n", entire_time(NULL), philo->id);
-					pthread_mutex_lock(&philo->global->eat_end.mut);
-					philo->global->eat_end.var = 1;
-					pthread_mutex_unlock(&philo->global->eat_end.mut);
+					pthread_mutex_unlock(&philo->global->forks[philo->id]);
+					pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
 					return (NULL);
 				}
 				while (_time(NULL) <= philo->advs.tte)
 				{
-					if (check_death(philo) || check_stomach(philo))
+					if (check_death(philo))
+					{
+						pthread_mutex_unlock(&philo->global->forks[philo->id]);
+						pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
 						return (NULL);
+					}
 				}
 				pthread_mutex_unlock(&philo->global->forks[philo->id]);
 				pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
@@ -120,7 +123,7 @@ void	*surpressor(void *arg)
 		}
 		else if (philo->sleeping)
 		{
-			if (check_death(philo) || check_stomach(philo))
+			if (check_death(philo))
 				return (NULL);
 			philo->sleeping = 0;
 			philo->eating = 1;
@@ -128,7 +131,7 @@ void	*surpressor(void *arg)
 			temp = _time(NULL);
 			while(_time(NULL) - temp < philo->advs.tts)
 			{
-				if (check_death(philo) || check_stomach(philo))
+				if (check_death(philo))
 					return (NULL);
 			}
 		}
@@ -144,8 +147,6 @@ int	main(int ac, char **av)
 
 	global.dead.var = 0;
 	pthread_mutex_init(&global.dead.mut, NULL);
-	global.eat_end.var = 0;
-	pthread_mutex_init(&global.eat_end.mut, NULL);
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{

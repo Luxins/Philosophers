@@ -41,7 +41,6 @@ typedef struct s_global
 {
 	pthread_mutex_t	forks[200];
 	t_var_mut		dead;
-	t_var_mut		eat_end;
 }	t_global;
 
 typedef struct s_philo
