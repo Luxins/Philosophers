@@ -35,6 +35,56 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 	philo->eat_end = 0;
 }
 
+static int	eating(t_philo *philo)
+{
+	int	first;
+	int	second;
+
+	first = philo->id;
+	second = (philo->id + 1) % philo->total;
+	if (philo->id % 2 == 0)
+	{
+		first = (philo->id + 1) % philo->total;
+		second = philo->id;
+	}
+	pthread_mutex_lock(&philo->global->forks[first]);
+	if (check_death(philo))
+	{
+		printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time() - philo->last_eaten, philo->id);
+		return (1);
+	}
+	printf("%llu %d Takeing left fork\n", _time() - philo->start_of_exec, philo->id);
+	pthread_mutex_lock(&philo->global->forks[second]);
+	printf("%llu %d Takeing right fork\n", _time() - philo->start_of_exec, philo->id);
+	printf("%llu %d Eating\n", _time() - philo->start_of_exec, philo->id);
+	philo->last_eaten = _time();
+	philo->times_eaten++;
+	if (philo->times_eaten >= philo->treshi.tste)
+	{
+		printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
+		pthread_mutex_unlock(&philo->global->forks[first]);
+		pthread_mutex_unlock(&philo->global->forks[second]);
+		return (1);
+	}
+	while (_time() - philo->last_eaten <= philo->advs.tte)
+	{
+		if (check_death(philo))
+		{
+			pthread_mutex_unlock(&philo->global->forks[first]);
+			pthread_mutex_unlock(&philo->global->forks[second]);
+			return (1);
+		}
+	}
+	pthread_mutex_unlock(&philo->global->forks[first]);
+	pthread_mutex_unlock(&philo->global->forks[second]);
+	return (0);
+}
+
+void	sleeping(t_philo *philo)
+{
+
+}
+
 void	*surpressor(void *arg)
 {
 	t_philo				*philo;
@@ -55,73 +105,8 @@ void	*surpressor(void *arg)
 				return (NULL);
 			philo->eating = 0;
 			philo->sleeping = 1;
-			printf("%llu %d Thinking\n", _time() - philo->start_of_exec, philo->id);
-			if (philo->id % 2 == 0)
-			{
-				pthread_mutex_lock(&philo->global->forks[philo->id]);
-				if (check_death(philo))
-				{
-					printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time() - philo->last_eaten, philo->id);
-					return (NULL);
-				}
-				printf("%llu %d Takeing left fork\n", _time() - philo->start_of_exec, philo->id);
-				pthread_mutex_lock(&philo->global->forks[(philo->id + 1) % philo->total]);
-				printf("%llu %d Takeing right fork\n", _time() - philo->start_of_exec, philo->id);
-				printf("%llu %d Eating\n", _time() - philo->start_of_exec, philo->id);
-				philo->last_eaten = _time();
-				philo->times_eaten++;
-				if (philo->times_eaten >= philo->treshi.tste)
-				{
-					printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-					pthread_mutex_unlock(&philo->global->forks[philo->id]);
-					pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
-					return (NULL);
-				}
-				while (_time() - philo->last_eaten <= philo->advs.tte)
-				{
-					if (check_death(philo))
-					{
-						pthread_mutex_unlock(&philo->global->forks[philo->id]);
-						pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
-						return (NULL);
-					}
-				}
-				pthread_mutex_unlock(&philo->global->forks[philo->id]);
-				pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
-			}
-			else
-			{
-				pthread_mutex_lock(&philo->global->forks[(philo->id + 1) % philo->total]);
-				if (check_death(philo))
-				{
-					printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time() - philo->last_eaten, philo->id);
-					return (NULL);
-				}
-				printf("%llu %d Takeing right fork\n", _time() - philo->start_of_exec, philo->id);
-				pthread_mutex_lock(&philo->global->forks[philo->id]);
-				printf("%llu %d Takeing left fork\n", _time() - philo->start_of_exec, philo->id);
-				printf("%llu %d Eating\n", _time() - philo->start_of_exec, philo->id);
-				philo->last_eaten = _time();
-				philo->times_eaten++;
-				if (philo->times_eaten >= philo->treshi.tste)
-				{
-					printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-					pthread_mutex_unlock(&philo->global->forks[philo->id]);
-					pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
-					return (NULL);
-				}
-				while (_time() - philo->last_eaten <= philo->advs.tte)
-				{
-					if (check_death(philo))
-					{
-						pthread_mutex_unlock(&philo->global->forks[philo->id]);
-						pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
-						return (NULL);
-					}
-				}
-				pthread_mutex_unlock(&philo->global->forks[philo->id]);
-				pthread_mutex_unlock(&philo->global->forks[(philo->id + 1) % philo->total]);
-			}
+			if (eating(philo))
+				return (NULL);
 		}
 		else if (philo->sleeping)
 		{
