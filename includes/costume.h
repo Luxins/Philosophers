@@ -7,13 +7,6 @@
 # include <stdlib.h>
 # include <pthread.h>
 
-//			time.c
-unsigned long long	_time(void);
-int					ft_atoi(const char *str);
-void				ft_bzero(void *s, size_t n);
-
-//			threads.c
-void				*sit_at_table(void *arg);
 
 typedef struct s_global
 {
@@ -39,7 +32,21 @@ typedef struct s_philo
 	unsigned int		tte;
 	unsigned int		tts;
 	int					tste;
+	pthread_mutex_t		times_eaten_mut;
+	pthread_mutex_t		last_eaten_mut;
 	t_global			*global;
 }	t_philo;
+
+//			time.c
+unsigned long long	_time(void);
+int					ft_atoi(const char *str);
+void				ft_bzero(void *s, size_t n);
+
+//			threads.c
+void				*sit_at_table(void *arg);
+
+//			access.c
+int					access_times_eaten(t_philo *philo, int inc);
+long long unsigned	access_last_eaten(t_philo *philo, unsigned long long new);
 
 #endif

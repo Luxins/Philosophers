@@ -2,6 +2,8 @@
 
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 {
+	pthread_mutex_init(&philo->times_eaten_mut, NULL);
+	pthread_mutex_init(&philo->last_eaten_mut, NULL);
 	philo->total = ft_atoi(av[1]);
 	philo->ttd = ft_atoi(av[2]);
 	philo->tte = ft_atoi(av[3]);
@@ -47,12 +49,15 @@ void	main_death(t_philo *philo, int philos)
 		{
 			if (philo[i].total == 1)
 				return ;
-			if (philo[1].tste == -1 || !(philo[i].times_eaten >= philo[i].tste))
+			if (philo[1].tste == -1 || !(access_times_eaten(&philo[i], 0) >= philo[i].tste))//Race 1 READER
 			{
-				if (philo[i].ttd < _time() - philo[i].last_eaten)
+				// printf("LAST EATEN: %llu\n", access_last_eaten(&philo[i], 0));
+				if (philo[i].ttd < _time() - access_last_eaten(&philo[i], 0))//Race 2 READER -- Have to find the WRITER MANUALLY
 				{
+					//pthread_mutex_lock(&philo[i].global->dead_mut);
 					philo[i].global->dead_var = 1;
-					printf("%llu %d %llu died\n", _time() - philo[i].start_of_exec, philo[i].id, _time() - philo[i].last_eaten);
+					//pthread_mutex_unlock(&philo[i].global->dead_mut);
+					printf("%llu %d %llu died\n", _time() - philo[i].start_of_exec, philo[i].id, _time() - access_last_eaten(&philo[i], 0));
 					return ;
 				}
 				i++;

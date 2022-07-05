@@ -2,8 +2,13 @@
 
 static int	check_death(t_philo *philo)
 {
+	//pthread_mutex_lock(&philo->global->dead_mut);
 	if (philo->global->dead_var)
+	{
+		//pthread_mutex_unlock(&philo->global->dead_mut);
 		return (1);
+	}
+	//pthread_mutex_unlock(&philo->global->dead_mut);
 	return (0);
 }
 
@@ -46,10 +51,10 @@ static int	eating(t_philo *philo, int	*iterations)
 	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
 	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id);
-	philo->last_eaten = _time();
+	philo->last_eaten = access_last_eaten(philo, _time());
 	if (philo->tste != -1)
 	{
-		philo->times_eaten++;
+		access_times_eaten(philo, 1);
 		if (philo->times_eaten >= philo->tste)
 		{
 			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
