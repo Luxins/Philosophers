@@ -8,6 +8,8 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 	philo->tts = ft_atoi(av[4]);
 	if (ac == 6)
 		philo->tste = ft_atoi(av[5]);
+	else
+		philo->tste = 0;
 	philo->global = global;
 	philo->eating = 1;
 	philo->sleeping = 0;
@@ -43,9 +45,11 @@ void	main_death(t_philo *philo, int philos)
 		i = 0;
 		while(i < philos)
 		{
+			if (philo[i].total == 1)
+				return ;
 			if (philo[i].ttd < _time() - philo[i].last_eaten)
 			{
-				if (!(philo[i].last_eaten >= philo[i].tste))
+				if (!(philo[i].times_eaten >= philo[i].tste) || !philo[i].tste)
 				{
 					philo[i].global->dead_var = 1;
 					printf("%llu %d %llu died\n", _time() - philo[i].start_of_exec, philo[i].id, _time() - philo[i].last_eaten);

@@ -41,13 +41,16 @@ static int	eating(t_philo *philo)
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
 	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id);
 	philo->last_eaten = _time();
-	philo->times_eaten++;
-	if (philo->times_eaten >= philo->tste)
+	if (philo->tste)
 	{
-		printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-		pthread_mutex_unlock(&philo->global->forks[first]);
-		pthread_mutex_unlock(&philo->global->forks[second]);
-		return (1);
+	philo->times_eaten++;
+		if (philo->times_eaten >= philo->tste)
+		{
+			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
+			pthread_mutex_unlock(&philo->global->forks[first]);
+			pthread_mutex_unlock(&philo->global->forks[second]);
+			return (1);
+		}
 	}
 	while (_time() - philo->last_eaten <= philo->tte)
 	{
@@ -69,6 +72,11 @@ void	*sit_at_table(void *arg)
 	t_philo				*philo;
 
 	philo = (t_philo *)arg;
+	if (philo->total == 1)
+	{
+		printf("%llu %d died\n", _time() - philo->start_of_exec, philo->id);
+		return (NULL);
+	}
 	while (1)
 	{
 		if (philo->eating)
