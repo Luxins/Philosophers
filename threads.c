@@ -7,19 +7,27 @@ static int	check_death(t_philo *philo)
 	return (0);
 }
 
-static int	eating(t_philo *philo)
+static int	eating(t_philo *philo, int	*iterations)
 {
-	int	first;
-	int	second;
+	int			first;
+	int			second;
 
 	first = philo->id;
 	second = (philo->id + 1) % philo->total;
 	if (philo->id % 2 == 0)
 	{
+		// if (iterations == 0)
+		// 	usleep(2000);
 		first = (philo->id + 1) % philo->total;
 		second = philo->id;
 	}
 	printf("%llu %d is thinking\n", _time() - philo->start_of_exec, philo->id);
+	if (*iterations != 0)
+	{
+		if (philo->ttd - (_time() - philo->last_eaten) > philo->tte)
+			usleep(philo->tte * 1000);
+	}
+	(*iterations)++;
 	pthread_mutex_lock(&philo->global->forks[first]);
 	if (check_death(philo))
 	{
@@ -28,8 +36,6 @@ static int	eating(t_philo *philo)
 		return (1);
 	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
-	if (philo->ttd - (_time() - philo->last_eaten) > philo->tte)
-		usleep(philo->tte * 1000);
 	pthread_mutex_lock(&philo->global->forks[second]);
 	if (check_death(philo))
 	{
@@ -41,13 +47,16 @@ static int	eating(t_philo *philo)
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
 	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id);
 	philo->last_eaten = _time();
-	philo->times_eaten++;
-	if (philo->times_eaten >= philo->tste)
+	if (philo->tste != -1)
 	{
-		printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-		pthread_mutex_unlock(&philo->global->forks[first]);
-		pthread_mutex_unlock(&philo->global->forks[second]);
-		return (1);
+		philo->times_eaten++;
+		if (philo->times_eaten >= philo->tste)
+		{
+			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
+			pthread_mutex_unlock(&philo->global->forks[first]);
+			pthread_mutex_unlock(&philo->global->forks[second]);
+			return (1);
+		}
 	}
 	while (_time() - philo->last_eaten <= philo->tte)
 	{
@@ -67,8 +76,15 @@ static int	eating(t_philo *philo)
 void	*sit_at_table(void *arg)
 {
 	t_philo				*philo;
+	int 				iterations;
 
+	iterations = 0;
 	philo = (t_philo *)arg;
+	if (philo->total == 1)
+	{
+		printf("%llu %d died\n", _time() - philo->start_of_exec, philo->id);
+		return (NULL);
+	}
 	while (1)
 	{
 		if (philo->eating)
@@ -80,7 +96,7 @@ void	*sit_at_table(void *arg)
 			}
 			philo->eating = 0;
 			philo->sleeping = 1;
-			if (eating(philo))
+			if (eating(philo, &iterations))
 			{
 				printf("%d HIT THE CRITICAL RETURN\n", philo->id);
 				return (NULL);
