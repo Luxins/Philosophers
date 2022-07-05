@@ -1,4 +1,4 @@
-OBJS = main.o time.o utils.o
+SRCS = main.c time.c utils.c threads.c
 
-all: $(OBJS)
-	gcc $(OBJS)
+all:
+	gcc $(SRCS)

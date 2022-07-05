@@ -1,21 +1,5 @@
 #include "costume.h"
 
-int	check_death(t_philo *philo)
-{
-	if (philo->treshi.ttd < _time() - philo->last_eaten)
-	{
-		pthread_mutex_lock(&philo->global->dead.mut);
-		philo->global->dead.var = 1;
-		pthread_mutex_unlock(&philo->global->dead.mut);
-	}
-	if (philo->global->dead.var)
-	{
-		printf("%llu %llu %d died\n", _time() - philo->start_of_exec, _time() - philo->last_eaten, philo->id);
-		return (1);
-	}
-	return (0);
-}
-
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 {
 	static int	testing = 0;
@@ -35,95 +19,22 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 	philo->eat_end = 0;
 }
 
-static int	eating(t_philo *philo)
+void	main_death(t_philo *philo, int philos)
 {
-	int	first;
-	int	second;
+	int	i;
 
-	first = philo->id;
-	second = (philo->id + 1) % philo->total;
-	if (philo->id % 2 == 0)
-	{
-		first = (philo->id + 1) % philo->total;
-		second = philo->id;
-	}
-	pthread_mutex_lock(&philo->global->forks[first]);
-	if (check_death(philo))
-	{
-		printf("TIME BEFORE PICKING UP FORK: %llu %d\n", _time() - philo->last_eaten, philo->id);
-		return (1);
-	}
-	printf("%llu %d Takeing left fork\n", _time() - philo->start_of_exec, philo->id);
-	pthread_mutex_lock(&philo->global->forks[second]);
-	printf("%llu %d Takeing right fork\n", _time() - philo->start_of_exec, philo->id);
-	printf("%llu %d Eating\n", _time() - philo->start_of_exec, philo->id);
-	philo->last_eaten = _time();
-	philo->times_eaten++;
-	if (philo->times_eaten >= philo->treshi.tste)
-	{
-		printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-		pthread_mutex_unlock(&philo->global->forks[first]);
-		pthread_mutex_unlock(&philo->global->forks[second]);
-		return (1);
-	}
-	while (_time() - philo->last_eaten <= philo->advs.tte)
-	{
-		if (check_death(philo))
-		{
-			pthread_mutex_unlock(&philo->global->forks[first]);
-			pthread_mutex_unlock(&philo->global->forks[second]);
-			return (1);
-		}
-	}
-	pthread_mutex_unlock(&philo->global->forks[first]);
-	pthread_mutex_unlock(&philo->global->forks[second]);
-	return (0);
-}
-
-void	sleeping(t_philo *philo)
-{
-
-}
-
-void	*surpressor(void *arg)
-{
-	t_philo				*philo;
-	unsigned long long	temp;
-
-	philo = (t_philo *)arg;
-	philo->last_eaten = _time();
-	philo->start_of_exec = _time();
 	while (1)
 	{
-		if (check_death(philo))
-			return (NULL);
-		if (!philo->eating && !philo->sleeping)
-			philo->eating = 1;
-		else if (philo->eating)
+		i = 0;
+		while(i < philos)
 		{
-			if (check_death(philo))
-				return (NULL);
-			philo->eating = 0;
-			philo->sleeping = 1;
-			if (eating(philo))
-				return (NULL);
-		}
-		else if (philo->sleeping)
-		{
-			if (check_death(philo))
-				return (NULL);
-			philo->sleeping = 0;
-			philo->eating = 1;
-			printf("%llu %d Sleeping\n", _time() - philo->start_of_exec, philo->id);
-			philo->last_sleep = _time();
-			while(_time() - philo->last_sleep - temp < philo->advs.tts)
+			if (philo[i].treshi.ttd < _time() - philo[i].last_eaten)
 			{
-				if (check_death(philo))
-				{
-					printf("DEATH UPON AWAKENING\n");
-					return (NULL);
-				}
+				philo[i].global->dead.var = 1;
+				printf("%llu %d %llu died\n", _time() - philo[i].start_of_exec, philo[i].id, _time() - philo[i].last_eaten);
+				return ;
 			}
+			i++;
 		}
 	}
 }
@@ -135,6 +46,7 @@ int	main(int ac, char **av)
 	t_global	global;
 	int			i;
 
+	ft_bzero(philo, 200 * sizeof(t_philo));
 	global.dead.var = 0;
 	pthread_mutex_init(&global.dead.mut, NULL);
 	i = 0;
@@ -144,7 +56,7 @@ int	main(int ac, char **av)
 		i++;
 	}
 	i = 0;
-	while(i < ft_atoi(av[1]))
+	while (i < ft_atoi(av[1]))
 	{
 		philo[i].id = i;
 		init_states(&philo[i], ac, av, &global);
@@ -153,9 +65,17 @@ int	main(int ac, char **av)
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{
+		philo[i].last_eaten = _time();
+		philo[i].start_of_exec = _time();
+		i++;
+	}
+	i = 0;
+	while (i < ft_atoi(av[1]))
+	{
 		pthread_create(&thread[i], NULL, &surpressor, (void *)&philo[i]);
 		i++;
 	}
+	main_death(philo, ft_atoi(av[1]));
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{

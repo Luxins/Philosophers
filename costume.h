@@ -15,6 +15,10 @@
 //			time.c
 unsigned long long	_time(void);
 int					ft_atoi(const char *str);
+void				ft_bzero(void *s, size_t n);
+
+//			threads.c
+void	*surpressor(void *arg);
 
 typedef struct s_treshold
 {
