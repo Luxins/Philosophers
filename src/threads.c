@@ -1,4 +1,4 @@
-#include "costume.h"
+#include "../includes/costume.h"
 
 static int	check_death(t_philo *philo)
 {

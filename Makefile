@@ -1,4 +1,16 @@
-SRCS = main.c time.c utils.c threads.c
+SRCS = src/main.c src/time.c src/utils.c src/threads.c
+NAME = philo
+CFLAGS = -Werror -Wextra -Wall
 
-all:
-	gcc $(SRCS)
+$(NAME): $(SRCS)
+	gcc $(CFLAGS) $(SRCS) -o $(NAME)
+
+all: $(NAME)
+
+clean:
+	cd src && rm -f $(wildcard *.o)
+
+fclean: clean
+	rm -f $(NAME)
+
+re: fclean all

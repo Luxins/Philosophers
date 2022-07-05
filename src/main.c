@@ -1,4 +1,4 @@
-#include "costume.h"
+#include "../includes/costume.h"
 
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 {

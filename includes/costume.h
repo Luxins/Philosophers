@@ -35,9 +35,9 @@ typedef struct s_philo
 	unsigned long long	last_eaten;
 	unsigned long long	start_of_exec;
 	unsigned long long	last_sleep;
-	int					ttd;
-	int					tte;
-	int					tts;
+	unsigned int		ttd;
+	unsigned int		tte;
+	unsigned int		tts;
 	int					tste;
 	t_global			*global;
 }	t_philo;
