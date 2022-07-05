@@ -7,45 +7,24 @@
 # include <stdlib.h>
 # include <pthread.h>
 
-// # define TTE 30
-// # define TTS 30
-// # define TTD 1800
-// # define TSTE 5
-
 //			time.c
 unsigned long long	_time(void);
 int					ft_atoi(const char *str);
 void				ft_bzero(void *s, size_t n);
 
 //			threads.c
-void	*surpressor(void *arg);
-
-typedef struct s_treshold
-{
-	int	ttd;
-	int	tste;
-}	t_treshold;
-
-typedef struct s_adv
-{
-	int	tte;
-	int	tts;
-}	t_adv;
-
-typedef struct s_var_mut
-{
-	int		var;
-	pthread_mutex_t mut;
-}	t_var_mut;
+void				*sit_at_table(void *arg);
 
 typedef struct s_global
 {
 	pthread_mutex_t	forks[200];
-	t_var_mut		dead;
+	int				dead_var;
+	pthread_mutex_t	dead_mut;
 }	t_global;
 
 typedef struct s_philo
 {
+	pthread_t			thread;
 	int					total;
 	int					id;
 	int					eating;
@@ -56,8 +35,10 @@ typedef struct s_philo
 	unsigned long long	last_eaten;
 	unsigned long long	start_of_exec;
 	unsigned long long	last_sleep;
-	t_adv				advs;
-	t_treshold			treshi;
+	int					ttd;
+	int					tte;
+	int					tts;
+	int					tste;
 	t_global			*global;
 }	t_philo;
 

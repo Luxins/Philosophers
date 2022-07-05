@@ -2,7 +2,7 @@
 
 static int	check_death(t_philo *philo)
 {
-	if (philo->global->dead.var)
+	if (philo->global->dead_var)
 		return (1);
 	return (0);
 }
@@ -16,7 +16,6 @@ static int	eating(t_philo *philo)
 	second = (philo->id + 1) % philo->total;
 	if (philo->id % 2 == 0)
 	{
-		usleep(1500);
 		first = (philo->id + 1) % philo->total;
 		second = philo->id;
 	}
@@ -25,27 +24,38 @@ static int	eating(t_philo *philo)
 	if (check_death(philo))
 	{
 		pthread_mutex_unlock(&philo->global->forks[first]);
+		printf("%d (before first fork)\n", philo->id);
 		return (1);
 	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
+	if (philo->ttd - (_time() - philo->last_eaten) > philo->tte)
+		usleep(philo->tte * 1000);
 	pthread_mutex_lock(&philo->global->forks[second]);
+	if (check_death(philo))
+	{
+		pthread_mutex_unlock(&philo->global->forks[first]);
+		pthread_mutex_unlock(&philo->global->forks[second]);
+		printf("%d (before second fork)\n", philo->id);
+		return (1);
+	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
 	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id);
 	philo->last_eaten = _time();
 	philo->times_eaten++;
-	if (philo->times_eaten >= philo->treshi.tste)
+	if (philo->times_eaten >= philo->tste)
 	{
 		printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
 		pthread_mutex_unlock(&philo->global->forks[first]);
 		pthread_mutex_unlock(&philo->global->forks[second]);
 		return (1);
 	}
-	while (_time() - philo->last_eaten <= philo->advs.tte)
+	while (_time() - philo->last_eaten <= philo->tte)
 	{
 		if (check_death(philo))
 		{
 			pthread_mutex_unlock(&philo->global->forks[first]);
 			pthread_mutex_unlock(&philo->global->forks[second]);
+			printf("%d (while eating)\n", philo->id);
 			return (1);
 		}
 	}
@@ -54,39 +64,46 @@ static int	eating(t_philo *philo)
 	return (0);
 }
 
-void	*surpressor(void *arg)
+void	*sit_at_table(void *arg)
 {
 	t_philo				*philo;
-	unsigned long long	temp;
 
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		if (check_death(philo))
-			return (NULL);
-		if (!philo->eating && !philo->sleeping)
-			philo->eating = 1;
-		else if (philo->eating)
+		if (philo->eating)
 		{
 			if (check_death(philo))
+			{
+				printf("%d (before thinking)\n", philo->id);
 				return (NULL);
+			}
 			philo->eating = 0;
 			philo->sleeping = 1;
 			if (eating(philo))
+			{
+				printf("%d HIT THE CRITICAL RETURN\n", philo->id);
 				return (NULL);
+			}
 		}
 		else if (philo->sleeping)
 		{
 			if (check_death(philo))
+			{
+				printf("%d (before sleeping)\n", philo->id);
 				return (NULL);
+			}
 			philo->sleeping = 0;
 			philo->eating = 1;
 			printf("%llu %d is sleeping\n", _time() - philo->start_of_exec, philo->id);
 			philo->last_sleep = _time();
-			while(_time() - philo->last_sleep - temp < philo->advs.tts)
+			while(_time() - philo->last_sleep < philo->tts)
 			{
 				if (check_death(philo))
+				{
+					printf("%d (while sleeping)\n", philo->id);
 					return (NULL);
+				}
 			}
 		}
 	}
