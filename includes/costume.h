@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   costume.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/06 16:19:41 by ljahn             #+#    #+#             */
+/*   Updated: 2022/07/06 16:20:05 by ljahn            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef COSTUME_H
 # define COSTUME_H
 
@@ -6,7 +18,6 @@
 # include <sys/time.h>
 # include <stdlib.h>
 # include <pthread.h>
-
 
 typedef struct s_global
 {
@@ -39,6 +50,10 @@ typedef struct s_philo
 	t_global			*global;
 }	t_philo;
 
+//			main.c
+void				init_states(t_philo *philo, \
+int ac, char **av, t_global *global);
+
 //			time.c
 unsigned long long	_time(void);
 int					ft_atoi(const char *str);
@@ -51,5 +66,15 @@ void				*sit_at_table(void *arg);
 long long unsigned	access_last_eaten(t_philo *philo, unsigned long long new);
 int					access_times_eaten(t_philo *philo, int inc);
 int					access_dead(t_philo *philo, int bool);
+
+//			thread_utils.c
+int					check_death(t_philo *philo);
+void				init_forks(t_philo *philo, int *iterations);
+
+//			loops.c
+void				loop_1(t_philo *philo, int ac, char **av, t_global *global);
+void				loop_2(t_philo *philo, char **av);
+void				loop_3(t_philo *philo, char **av);
+void				loop_4(t_philo *philo, t_global *global, char **av);
 
 #endif

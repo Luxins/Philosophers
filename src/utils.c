@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/06 16:21:16 by ljahn             #+#    #+#             */
+/*   Updated: 2022/07/06 16:21:34 by ljahn            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/costume.h"
 
 void	ft_putstr_fd(char *s, int fd)
@@ -8,19 +20,6 @@ void	ft_putstr_fd(char *s, int fd)
 	{
 		write(fd, s++, 1);
 	}
-}
-
-size_t	ft_strlen(const char *c)
-{
-	size_t	count;
-
-	count = 0;
-	while (*c)
-	{
-		count++;
-		c++;
-	}
-	return (count);
 }
 
 int	ft_strncmp(char const *s1, char const *s2, unsigned int n)

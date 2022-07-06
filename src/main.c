@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
+/*   Updated: 2022/07/06 16:19:09 by ljahn            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/costume.h"
 
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
@@ -38,6 +50,18 @@ t_global	init_global(char **av)
 	return (global);
 }
 
+static int	track_death(t_philo *philo, int i)
+{
+	if (philo[i].ttd < _time() - access_last_eaten(&philo[i], 0))
+	{
+		access_dead(philo, 1);
+		printf("%llu %d died\n", _time() - \
+		philo[i].start_of_exec, philo[i].id + 1);
+		return (1);
+	}
+	return (0);
+}
+
 void	main_death(t_philo *philo)
 {
 	int	i;
@@ -45,18 +69,15 @@ void	main_death(t_philo *philo)
 	while (1)
 	{
 		i = 0;
-		while(i < philo->total)
+		while (i < philo->total)
 		{
 			if (philo[i].total == 1)
 				return ;
-			if (philo[1].tste == -1 || !(access_times_eaten(&philo[i], 0) >= philo[i].tste))
+			if (philo[1].tste == -1 || !(access_times_eaten(&philo[i], 0) \
+			>= philo[i].tste))
 			{
-				if (philo[i].ttd < _time() - access_last_eaten(&philo[i], 0))
-				{
-					access_dead(philo, 1);
-					printf("%llu %d %llu died\n", _time() - philo[i].start_of_exec, philo[i].id, _time() - access_last_eaten(&philo[i], 0));
+				if (track_death(philo, i))
 					return ;
-				}
 				i++;
 			}
 			else
@@ -69,29 +90,14 @@ int	main(int ac, char **av)
 {
 	t_philo		philo[400];
 	t_global	global;
-	int			i;
 
 	ft_bzero(philo, 200 * sizeof(t_philo));
 	global = init_global(av);
-	i = 0;
-	while (i < ft_atoi(av[1]))
-	{
-		philo[i].id = i;
-		init_states(&philo[i], ac, av, &global);
-		i++;
-	}
-	i = 0;
-	while (i < ft_atoi(av[1]))
-	{
-		pthread_create(&philo[i].thread, NULL, &sit_at_table, (void *)&philo[i]);
-		i++;
-	}
+	loop_1(philo, ac, av, &global);
+	loop_2(philo, av);
 	main_death(philo);
-	i = 0;
-	while (i < ft_atoi(av[1]))
-	{
-		pthread_join(philo[i].thread, NULL);
-		i++;
-	}
+	loop_3(philo, av);
+	pthread_mutex_destroy(&global.dead_mut);
+	loop_4(philo, &global, av);
 	return (0);
 }

@@ -1,41 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   threads.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/06 12:49:40 by ljahn             #+#    #+#             */
+/*   Updated: 2022/07/06 16:15:34 by ljahn            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/costume.h"
-
-static int	check_death(t_philo *philo)
-{
-	if (access_dead(philo, 0))
-		return (1);
-	return (0);
-}
-
-void	init_forks(t_philo *philo, int *iterations)
-{
-	philo->first = philo->id;
-	philo->second = (philo->id + 1) % philo->total;
-	if (philo->id % 2 == 0)
-	{
-		philo->first = (philo->id + 1) % philo->total;
-		philo->second = philo->id;
-	}
-	printf("%llu %d is thinking\n", _time() - philo->start_of_exec, philo->id);
-	if (*iterations != 0)
-	{
-		if (philo->ttd - (_time() - access_last_eaten(philo, 0)) > philo->tte)
-			usleep(philo->tte * 1000);
-	}
-	(*iterations)++;
-}
 
 static int	takeing_forks(t_philo *philo)
 {
 	pthread_mutex_lock(&philo->global->forks[philo->first]);
 	if (check_death(philo))
 		return (1);
-	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
+	printf("%llu %d has taken a fork\n", _time() \
+	- philo->start_of_exec, philo->id + 1);
 	pthread_mutex_lock(&philo->global->forks[philo->second]);
 	if (check_death(philo))
 		return (2);
-	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
-	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id);
+	printf("%llu %d has taken a fork\n", _time() \
+	- philo->start_of_exec, philo->id + 1);
+	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id + 1);
 	access_last_eaten(philo, _time());
 	return (0);
 }
@@ -53,7 +42,8 @@ static int	eating(t_philo *philo, int	*iterations)
 		access_times_eaten(philo, 1);
 		if (access_times_eaten(philo, 0) >= philo->tste)
 		{
-			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
+			printf("%llu %d Ate often enough\n", _time() \
+			- philo->start_of_exec, philo->id + 1);
 			return (2);
 		}
 	}
@@ -71,9 +61,10 @@ static int	sleeping(t_philo *philo)
 {
 	if (check_death(philo))
 		return (1);
-	printf("%llu %d is sleeping\n", _time() - philo->start_of_exec, philo->id);
+	printf("%llu %d is sleeping\n", _time() \
+	- philo->start_of_exec, philo->id + 1);
 	philo->last_sleep = _time();
-	while(_time() - philo->last_sleep < philo->tts)
+	while (_time() - philo->last_sleep < philo->tts)
 	{
 		if (check_death(philo))
 			return (1);
@@ -84,7 +75,7 @@ static int	sleeping(t_philo *philo)
 void	*sit_at_table(void *arg)
 {
 	t_philo				*philo;
-	int 				iterations;
+	int					iterations;
 	int					eat_ret;
 
 	iterations = 0;
@@ -92,7 +83,7 @@ void	*sit_at_table(void *arg)
 	if (philo->total == 1)
 	{
 		usleep(philo->ttd * 1000);
-		printf("%llu %d died\n", _time() - philo->start_of_exec, philo->id);
+		printf("%llu %d died\n", _time() - philo->start_of_exec, philo->id + 1);
 		return (NULL);
 	}
 	while (1)
