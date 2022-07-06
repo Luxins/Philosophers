@@ -25,6 +25,7 @@ typedef struct s_philo
 	int					dead;
 	int					eat_end;
 	int					times_eaten;
+	pthread_mutex_t		times_eaten_mut;
 	unsigned long long	last_eaten;
 	pthread_mutex_t		last_eaten_mut;
 	unsigned long long	start_of_exec;
@@ -46,5 +47,6 @@ void				*sit_at_table(void *arg);
 
 //			access.c
 long long unsigned	access_last_eaten(t_philo *philo, unsigned long long new);
+int	access_times_eaten(t_philo *philo, int inc);
 
 #endif

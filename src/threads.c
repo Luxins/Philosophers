@@ -49,8 +49,8 @@ static int	eating(t_philo *philo, int	*iterations)
 	access_last_eaten(philo, _time());
 	if (philo->tste != -1)
 	{
-		philo->times_eaten++;
-		if (philo->times_eaten >= philo->tste)
+		access_times_eaten(philo, 1);
+		if (access_times_eaten(philo, 0) >= philo->tste)
 		{
 			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
 			pthread_mutex_unlock(&philo->global->forks[first]);
