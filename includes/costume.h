@@ -47,6 +47,7 @@ void				*sit_at_table(void *arg);
 
 //			access.c
 long long unsigned	access_last_eaten(t_philo *philo, unsigned long long new);
-int	access_times_eaten(t_philo *philo, int inc);
+int					access_times_eaten(t_philo *philo, int inc);
+int					access_dead(t_philo *philo, int bool);
 
 #endif

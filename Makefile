@@ -1,6 +1,6 @@
 SRCS = src/main.c src/time.c src/utils.c src/threads.c src/access.c
 NAME = philo
-CFLAGS = -Werror -Wextra -Wall
+CFLAGS = -g -Werror -Wextra -Wall -pthread -fsanitize=thread
 
 $(NAME): $(SRCS)
 	gcc $(CFLAGS) $(SRCS) -o $(NAME)

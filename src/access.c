@@ -29,11 +29,27 @@ int	access_times_eaten(t_philo *philo, int inc)
 	}
 	if (inc != 0)
 	{
-		philo->times_eaten ++;
+		philo->times_eaten++;
 		pthread_mutex_unlock(&philo->times_eaten_mut);
 		return (0);
 	}
 	cpy = philo->times_eaten;
 	pthread_mutex_unlock(&philo->times_eaten_mut);
+	return (cpy);
+}
+
+int	access_dead(t_philo *philo, int bool)
+{
+	int	cpy;
+
+	pthread_mutex_lock(&philo->global->dead_mut);
+	if (bool == 1)
+	{
+		philo->global->dead_var = 1;
+		pthread_mutex_unlock(&philo->global->dead_mut);
+		return (0);
+	}
+	cpy = philo->global->dead_var;
+	pthread_mutex_unlock(&philo->global->dead_mut);
 	return (cpy);
 }

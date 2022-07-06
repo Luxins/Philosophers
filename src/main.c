@@ -2,8 +2,10 @@
 
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 {
+	philo->global = global;
 	pthread_mutex_init(&philo->last_eaten_mut, NULL);
 	pthread_mutex_init(&philo->times_eaten_mut, NULL);
+	pthread_mutex_init(&philo->global->dead_mut, NULL);
 	philo->total = ft_atoi(av[1]);
 	philo->ttd = ft_atoi(av[2]);
 	philo->tte = ft_atoi(av[3]);
@@ -12,7 +14,6 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 		philo->tste = ft_atoi(av[5]);
 	else
 		philo->tste = -1;
-	philo->global = global;
 	philo->eating = 1;
 	philo->sleeping = 0;
 	philo->dead = 0;
@@ -53,7 +54,7 @@ void	main_death(t_philo *philo, int philos)
 			{
 				if (philo[i].ttd < _time() - access_last_eaten(&philo[i], 0))
 				{
-					philo[i].global->dead_var = 1;
+					access_dead(philo, 1);
 					printf("%llu %d %llu died\n", _time() - philo[i].start_of_exec, philo[i].id, _time() - access_last_eaten(&philo[i], 0));
 					return ;
 				}

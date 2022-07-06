@@ -2,7 +2,7 @@
 
 static int	check_death(t_philo *philo)
 {
-	if (philo->global->dead_var)
+	if (access_dead(philo, 0))
 		return (1);
 	return (0);
 }
@@ -16,8 +16,6 @@ static int	eating(t_philo *philo, int	*iterations)
 	second = (philo->id + 1) % philo->total;
 	if (philo->id % 2 == 0)
 	{
-		// if (iterations == 0)
-		// 	usleep(2000);
 		first = (philo->id + 1) % philo->total;
 		second = philo->id;
 	}
@@ -82,6 +80,7 @@ void	*sit_at_table(void *arg)
 	philo = (t_philo *)arg;
 	if (philo->total == 1)
 	{
+		usleep(philo->ttd * 1000);
 		printf("%llu %d died\n", _time() - philo->start_of_exec, philo->id);
 		return (NULL);
 	}
