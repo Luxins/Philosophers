@@ -7,7 +7,7 @@ static int	check_death(t_philo *philo)
 	return (0);
 }
 
-static int	eating(t_philo *philo, int	*iterations)
+void	init_forks(t_philo *philo, int *iterations)
 {
 	philo->first = philo->id;
 	philo->second = (philo->id + 1) % philo->total;
@@ -23,43 +23,44 @@ static int	eating(t_philo *philo, int	*iterations)
 			usleep(philo->tte * 1000);
 	}
 	(*iterations)++;
+}
+
+static int	takeing_forks(t_philo *philo)
+{
 	pthread_mutex_lock(&philo->global->forks[philo->first]);
 	if (check_death(philo))
-	{
-		pthread_mutex_unlock(&philo->global->forks[philo->first]);
 		return (1);
-	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
 	pthread_mutex_lock(&philo->global->forks[philo->second]);
 	if (check_death(philo))
-	{
-		pthread_mutex_unlock(&philo->global->forks[philo->first]);
-		pthread_mutex_unlock(&philo->global->forks[philo->second]);
-		return (1);
-	}
+		return (2);
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
 	printf("%llu %d is eating\n", _time() - philo->start_of_exec, philo->id);
 	access_last_eaten(philo, _time());
+	return (0);
+}
+
+static int	eating(t_philo *philo, int	*iterations)
+{
+	int	ret;
+
+	init_forks(philo, iterations);
+	ret = takeing_forks(philo);
+	if (ret)
+		return (ret);
 	if (philo->tste != -1)
 	{
 		access_times_eaten(philo, 1);
 		if (access_times_eaten(philo, 0) >= philo->tste)
 		{
 			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-			pthread_mutex_unlock(&philo->global->forks[philo->first]);
-			pthread_mutex_unlock(&philo->global->forks[philo->second]);
-			return (1);
+			return (2);
 		}
 	}
 	while (_time() - access_last_eaten(philo, 0) <= philo->tte)
 	{
 		if (check_death(philo))
-		{
-			pthread_mutex_unlock(&philo->global->forks[philo->first]);
-			pthread_mutex_unlock(&philo->global->forks[philo->second]);
-			printf("%d (while eating)\n", philo->id);
-			return (1);
-		}
+			return (2);
 	}
 	pthread_mutex_unlock(&philo->global->forks[philo->first]);
 	pthread_mutex_unlock(&philo->global->forks[philo->second]);
@@ -84,6 +85,7 @@ void	*sit_at_table(void *arg)
 {
 	t_philo				*philo;
 	int 				iterations;
+	int					eat_ret;
 
 	iterations = 0;
 	philo = (t_philo *)arg;
@@ -95,7 +97,15 @@ void	*sit_at_table(void *arg)
 	}
 	while (1)
 	{
-		if (check_death(philo) || eating(philo, &iterations) || sleeping(philo))
+		eat_ret = eating(philo, &iterations);
+		if (eat_ret)
+		{
+			pthread_mutex_unlock(&philo->global->forks[philo->first]);
+			if (eat_ret == 2)
+				pthread_mutex_unlock(&philo->global->forks[philo->second]);
+			return (NULL);
+		}
+		if (sleeping(philo))
 			return (NULL);
 	}
 }
