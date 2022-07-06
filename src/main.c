@@ -2,7 +2,6 @@
 
 void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 {
-	philo->global = global;
 	pthread_mutex_init(&philo->last_eaten_mut, NULL);
 	pthread_mutex_init(&philo->times_eaten_mut, NULL);
 	philo->total = ft_atoi(av[1]);
@@ -13,13 +12,14 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 		philo->tste = ft_atoi(av[5]);
 	else
 		philo->tste = -1;
+	philo->global = global;
 	philo->eating = 1;
 	philo->sleeping = 0;
 	philo->dead = 0;
-	access_times_eaten(philo, 69);
 	philo->eat_end = 0;
-	access_last_eaten(philo, _time());
 	philo->start_of_exec = _time();
+	access_last_eaten(philo, _time());
+	access_times_eaten(philo, 69);
 }
 
 t_global	init_global(char **av)
@@ -28,10 +28,7 @@ t_global	init_global(char **av)
 	t_global	global;
 
 	pthread_mutex_init(&global.dead_mut, NULL);
-	pthread_mutex_lock(&global.dead_mut);
 	global.dead_var = 0;
-	pthread_mutex_unlock(&global.dead_mut);
-	pthread_mutex_init(&global.dead_mut, NULL);
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{
@@ -41,14 +38,14 @@ t_global	init_global(char **av)
 	return (global);
 }
 
-void	main_death(t_philo *philo, int philos)
+void	main_death(t_philo *philo)
 {
 	int	i;
 
 	while (1)
 	{
 		i = 0;
-		while(i < philos)
+		while(i < philo->total)
 		{
 			if (philo[i].total == 1)
 				return ;
@@ -70,7 +67,7 @@ void	main_death(t_philo *philo, int philos)
 
 int	main(int ac, char **av)
 {
-	t_philo		philo[200];
+	t_philo		philo[400];
 	t_global	global;
 	int			i;
 
@@ -89,7 +86,7 @@ int	main(int ac, char **av)
 		pthread_create(&philo[i].thread, NULL, &sit_at_table, (void *)&philo[i]);
 		i++;
 	}
-	main_death(philo, ft_atoi(av[1]));
+	main_death(philo);
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{

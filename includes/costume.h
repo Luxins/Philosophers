@@ -10,7 +10,7 @@
 
 typedef struct s_global
 {
-	pthread_mutex_t	forks[200];
+	pthread_mutex_t	forks[400];
 	int				dead_var;
 	pthread_mutex_t	dead_mut;
 }	t_global;

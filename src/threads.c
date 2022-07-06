@@ -71,6 +71,22 @@ static int	eating(t_philo *philo, int	*iterations)
 	return (0);
 }
 
+static int	sleeping(t_philo *philo)
+{
+	if (check_death(philo))
+		return (1);
+	philo->sleeping = 0;
+	philo->eating = 1;
+	printf("%llu %d is sleeping\n", _time() - philo->start_of_exec, philo->id);
+	philo->last_sleep = _time();
+	while(_time() - philo->last_sleep < philo->tts)
+	{
+		if (check_death(philo))
+			return (1);
+	}
+	return (0);
+}
+
 void	*sit_at_table(void *arg)
 {
 	t_philo				*philo;
@@ -89,37 +105,16 @@ void	*sit_at_table(void *arg)
 		if (philo->eating)
 		{
 			if (check_death(philo))
-			{
-				printf("%d (before thinking)\n", philo->id);
 				return (NULL);
-			}
 			philo->eating = 0;
 			philo->sleeping = 1;
 			if (eating(philo, &iterations))
-			{
-				printf("%d (while eating)\n", philo->id);
 				return (NULL);
-			}
 		}
 		else if (philo->sleeping)
 		{
-			if (check_death(philo))
-			{
-				printf("%d (before sleeping)\n", philo->id);
+			if(sleeping(philo))
 				return (NULL);
-			}
-			philo->sleeping = 0;
-			philo->eating = 1;
-			printf("%llu %d is sleeping\n", _time() - philo->start_of_exec, philo->id);
-			philo->last_sleep = _time();
-			while(_time() - philo->last_sleep < philo->tts)
-			{
-				if (check_death(philo))
-				{
-					printf("%d (while sleeping)\n", philo->id);
-					return (NULL);
-				}
-			}
 		}
 	}
 }
