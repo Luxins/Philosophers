@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 16:19:41 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 16:20:05 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/07/06 19:40:46 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,20 @@ typedef struct s_philo
 	t_global			*global;
 }	t_philo;
 
+//			check_input.c
+int					check_philo(int ac, char **av);
+
 //			main.c
 void				init_states(t_philo *philo, \
-int ac, char **av, t_global *global);
+int ac, char **av,	t_global *global);
 
 //			time.c
 unsigned long long	_time(void);
+int					ft_strlen(const char *c);
+void				ft_putstr_fd(char *s, int fd);
+int					ft_strncmp(char const *s1, char const *s2, unsigned int n);
+
+//			utils.c
 int					ft_atoi(const char *str);
 void				ft_bzero(void *s, size_t n);
 

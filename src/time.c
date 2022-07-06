@@ -6,11 +6,24 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 16:20:52 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 16:20:53 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/07/06 16:36:42 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/costume.h"
+
+int	ft_strlen(const char *c)
+{
+	int	count;
+
+	count = 0;
+	while (*c)
+	{
+		count++;
+		c++;
+	}
+	return (count);
+}
 
 unsigned long long	_time(void)
 {

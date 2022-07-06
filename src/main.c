@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 16:19:09 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/07/06 19:40:13 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ int	main(int ac, char **av)
 	t_philo		philo[400];
 	t_global	global;
 
+	if (check_philo(ac, av))
+		return (1);
 	ft_bzero(philo, 200 * sizeof(t_philo));
 	global = init_global(av);
 	loop_1(philo, ac, av, &global);
