@@ -97,7 +97,7 @@ void	*sit_at_table(void *arg)
 			philo->sleeping = 1;
 			if (eating(philo, &iterations))
 			{
-				printf("%d HIT THE CRITICAL RETURN\n", philo->id);
+				printf("%d (while eating)\n", philo->id);
 				return (NULL);
 			}
 		}

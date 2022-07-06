@@ -5,7 +5,6 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 	philo->global = global;
 	pthread_mutex_init(&philo->last_eaten_mut, NULL);
 	pthread_mutex_init(&philo->times_eaten_mut, NULL);
-	pthread_mutex_init(&philo->global->dead_mut, NULL);
 	philo->total = ft_atoi(av[1]);
 	philo->ttd = ft_atoi(av[2]);
 	philo->tte = ft_atoi(av[3]);
@@ -28,7 +27,10 @@ t_global	init_global(char **av)
 	int			i;
 	t_global	global;
 
+	pthread_mutex_init(&global.dead_mut, NULL);
+	pthread_mutex_lock(&global.dead_mut);
 	global.dead_var = 0;
+	pthread_mutex_unlock(&global.dead_mut);
 	pthread_mutex_init(&global.dead_mut, NULL);
 	i = 0;
 	while (i < ft_atoi(av[1]))
