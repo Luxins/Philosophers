@@ -9,15 +9,12 @@ static int	check_death(t_philo *philo)
 
 static int	eating(t_philo *philo, int	*iterations)
 {
-	int			first;
-	int			second;
-
-	first = philo->id;
-	second = (philo->id + 1) % philo->total;
+	philo->first = philo->id;
+	philo->second = (philo->id + 1) % philo->total;
 	if (philo->id % 2 == 0)
 	{
-		first = (philo->id + 1) % philo->total;
-		second = philo->id;
+		philo->first = (philo->id + 1) % philo->total;
+		philo->second = philo->id;
 	}
 	printf("%llu %d is thinking\n", _time() - philo->start_of_exec, philo->id);
 	if (*iterations != 0)
@@ -26,20 +23,18 @@ static int	eating(t_philo *philo, int	*iterations)
 			usleep(philo->tte * 1000);
 	}
 	(*iterations)++;
-	pthread_mutex_lock(&philo->global->forks[first]);
+	pthread_mutex_lock(&philo->global->forks[philo->first]);
 	if (check_death(philo))
 	{
-		pthread_mutex_unlock(&philo->global->forks[first]);
-		printf("%d (before first fork)\n", philo->id);
+		pthread_mutex_unlock(&philo->global->forks[philo->first]);
 		return (1);
 	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
-	pthread_mutex_lock(&philo->global->forks[second]);
+	pthread_mutex_lock(&philo->global->forks[philo->second]);
 	if (check_death(philo))
 	{
-		pthread_mutex_unlock(&philo->global->forks[first]);
-		pthread_mutex_unlock(&philo->global->forks[second]);
-		printf("%d (before second fork)\n", philo->id);
+		pthread_mutex_unlock(&philo->global->forks[philo->first]);
+		pthread_mutex_unlock(&philo->global->forks[philo->second]);
 		return (1);
 	}
 	printf("%llu %d has taken a fork\n", _time() - philo->start_of_exec, philo->id);
@@ -51,8 +46,8 @@ static int	eating(t_philo *philo, int	*iterations)
 		if (access_times_eaten(philo, 0) >= philo->tste)
 		{
 			printf("%llu %d Ate often enough\n", _time() - philo->start_of_exec, philo->id);
-			pthread_mutex_unlock(&philo->global->forks[first]);
-			pthread_mutex_unlock(&philo->global->forks[second]);
+			pthread_mutex_unlock(&philo->global->forks[philo->first]);
+			pthread_mutex_unlock(&philo->global->forks[philo->second]);
 			return (1);
 		}
 	}
@@ -60,14 +55,14 @@ static int	eating(t_philo *philo, int	*iterations)
 	{
 		if (check_death(philo))
 		{
-			pthread_mutex_unlock(&philo->global->forks[first]);
-			pthread_mutex_unlock(&philo->global->forks[second]);
+			pthread_mutex_unlock(&philo->global->forks[philo->first]);
+			pthread_mutex_unlock(&philo->global->forks[philo->second]);
 			printf("%d (while eating)\n", philo->id);
 			return (1);
 		}
 	}
-	pthread_mutex_unlock(&philo->global->forks[first]);
-	pthread_mutex_unlock(&philo->global->forks[second]);
+	pthread_mutex_unlock(&philo->global->forks[philo->first]);
+	pthread_mutex_unlock(&philo->global->forks[philo->second]);
 	return (0);
 }
 
@@ -75,8 +70,6 @@ static int	sleeping(t_philo *philo)
 {
 	if (check_death(philo))
 		return (1);
-	philo->sleeping = 0;
-	philo->eating = 1;
 	printf("%llu %d is sleeping\n", _time() - philo->start_of_exec, philo->id);
 	philo->last_sleep = _time();
 	while(_time() - philo->last_sleep < philo->tts)
@@ -102,19 +95,7 @@ void	*sit_at_table(void *arg)
 	}
 	while (1)
 	{
-		if (philo->eating)
-		{
-			if (check_death(philo))
-				return (NULL);
-			philo->eating = 0;
-			philo->sleeping = 1;
-			if (eating(philo, &iterations))
-				return (NULL);
-		}
-		else if (philo->sleeping)
-		{
-			if(sleeping(philo))
-				return (NULL);
-		}
+		if (check_death(philo) || eating(philo, &iterations) || sleeping(philo))
+			return (NULL);
 	}
 }

@@ -18,6 +18,8 @@ typedef struct s_global
 typedef struct s_philo
 {
 	pthread_t			thread;
+	int					first;
+	int					second;
 	int					total;
 	int					id;
 	int					eating;
