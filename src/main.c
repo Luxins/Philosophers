@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
-/*   Updated: 2022/08/05 20:52:19 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 21:14:36 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,21 +34,18 @@ void	init_states(t_philo *philo, int ac, char **av, t_global *global)
 	access_times_eaten(philo, 69);
 }
 
-t_global	init_global(char **av)
+void	init_global(char **av, t_global *global)
 {
 	int			i;
-	t_global	global;
 
-	pthread_mutex_init(&global.dead_mut, NULL);
-	pthread_mutex_init(&global.print_mut, NULL);
-	global.dead_var = 0;
+	pthread_mutex_init(&global->dead_mut, NULL);
+	pthread_mutex_init(&global->print_mut, NULL);
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{
-		pthread_mutex_init(&global.forks[i], NULL);
+		pthread_mutex_init(&global->forks[i], NULL);
 		i++;
 	}
-	return (global);
 }
 
 static int	track_death(t_philo *philo, int i)
@@ -89,21 +86,23 @@ void	main_death(t_philo *philo)
 
 int	main(int ac, char **av)
 {
-	t_philo		*philo[400];
-	t_global	global;
+	t_philo		*philo;
+	t_global	*global;
 
 	philo = alloc_philos();
 	if (check_philo(ac, av))
 		return (1);
 	ft_bzero(philo, 200 * sizeof(t_philo));
-	global = init_global(av);
-	loop_1(philo, ac, av, &global);
+	global = malloc(sizeof(t_global));
+	init_global(av, global);
+	loop_1(philo, ac, av, global);
 	loop_2(philo, av);
 	main_death(philo);
 	loop_3(philo, av);
-	pthread_mutex_destroy(&global.dead_mut);
-	pthread_mutex_destroy(&global.print_mut);
-	loop_4(philo, &global, av);
-	free_philos(philo);
+	pthread_mutex_destroy(&global->dead_mut);
+	pthread_mutex_destroy(&global->print_mut);
+	loop_4(philo, global, av);
+	free(philo);
+	free(global);
 	return (0);
 }
