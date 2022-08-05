@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
-/*   Updated: 2022/08/05 20:17:50 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 20:52:19 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,10 @@ void	main_death(t_philo *philo)
 
 int	main(int ac, char **av)
 {
-	t_philo		philo[400];
+	t_philo		*philo[400];
 	t_global	global;
 
+	philo = alloc_philos();
 	if (check_philo(ac, av))
 		return (1);
 	ft_bzero(philo, 200 * sizeof(t_philo));
@@ -103,5 +104,6 @@ int	main(int ac, char **av)
 	pthread_mutex_destroy(&global.dead_mut);
 	pthread_mutex_destroy(&global.print_mut);
 	loop_4(philo, &global, av);
+	free_philos(philo);
 	return (0);
 }

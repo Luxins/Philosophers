@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 16:19:41 by ljahn             #+#    #+#             */
-/*   Updated: 2022/08/05 20:22:18 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 20:53:47 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,5 +87,9 @@ void				loop_1(t_philo *philo, int ac, char **av, t_global *global);
 void				loop_2(t_philo *philo, char **av);
 void				loop_3(t_philo *philo, char **av);
 void				loop_4(t_philo *philo, t_global *global, char **av);
+
+//			memory.c
+t_philo				*alloc_philos(void);
+void				free_philos(t_philo *philo);
 
 #endif
