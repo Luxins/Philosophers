@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 16:19:41 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 19:40:46 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 20:22:18 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ typedef struct s_global
 	pthread_mutex_t	forks[400];
 	int				dead_var;
 	pthread_mutex_t	dead_mut;
+	pthread_mutex_t	print_mut;
 }	t_global;
 
 typedef struct s_philo
@@ -74,6 +75,8 @@ void				*sit_at_table(void *arg);
 long long unsigned	access_last_eaten(t_philo *philo, unsigned long long new);
 int					access_times_eaten(t_philo *philo, int inc);
 int					access_dead(t_philo *philo, int bool);
+void				s_printf(char *msg, long long unsigned time, \
+					int philo_id, t_philo *philo);
 
 //			thread_utils.c
 int					check_death(t_philo *philo);

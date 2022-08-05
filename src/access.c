@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:24 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 15:45:25 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 20:22:37 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,12 @@ int	access_dead(t_philo *philo, int bool)
 	cpy = philo->global->dead_var;
 	pthread_mutex_unlock(&philo->global->dead_mut);
 	return (cpy);
+}
+
+void	s_printf(char *msg, long long unsigned time, \
+		int philo_id, t_philo *philo)
+{
+	pthread_mutex_lock(&philo->global->print_mut);
+	printf(msg, time, philo_id);
+	pthread_mutex_unlock(&philo->global->print_mut);
 }

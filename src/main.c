@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 19:40:13 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 20:17:50 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ t_global	init_global(char **av)
 	t_global	global;
 
 	pthread_mutex_init(&global.dead_mut, NULL);
+	pthread_mutex_init(&global.print_mut, NULL);
 	global.dead_var = 0;
 	i = 0;
 	while (i < ft_atoi(av[1]))
@@ -55,8 +56,8 @@ static int	track_death(t_philo *philo, int i)
 	if (philo[i].ttd < _time() - access_last_eaten(&philo[i], 0))
 	{
 		access_dead(philo, 1);
-		printf("%llu %d died\n", _time() - \
-		philo[i].start_of_exec, philo[i].id + 1);
+		s_printf("%llu %d died\n", _time() - \
+		philo[i].start_of_exec, philo[i].id + 1, philo);
 		return (1);
 	}
 	return (0);
@@ -100,6 +101,7 @@ int	main(int ac, char **av)
 	main_death(philo);
 	loop_3(philo, av);
 	pthread_mutex_destroy(&global.dead_mut);
+	pthread_mutex_destroy(&global.print_mut);
 	loop_4(philo, &global, av);
 	return (0);
 }

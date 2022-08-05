@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:29:25 by ljahn             #+#    #+#             */
-/*   Updated: 2022/07/06 16:20:41 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 20:21:27 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ void	init_forks(t_philo *philo, int *iterations)
 		philo->first = (philo->id + 1) % philo->total;
 		philo->second = philo->id;
 	}
-	printf("%llu %d is thinking\n", _time() \
-	- philo->start_of_exec, philo->id + 1);
+	s_printf("%llu %d is thinking\n", _time() \
+	- philo->start_of_exec, philo->id + 1, philo);
 	if (*iterations != 0)
 	{
 		if (philo->ttd - (_time() - access_last_eaten(philo, 0)) > philo->tte)
