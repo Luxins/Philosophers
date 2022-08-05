@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
-/*   Updated: 2022/08/05 21:31:46 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 21:49:38 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,6 @@ int	main(int ac, char **av)
 	if (check_philo(ac, av))
 		return (1);
 	philo = alloc_philos(ft_atoi(av[1]));
-	ft_bzero(philo, 200 * sizeof(t_philo));
 	global = malloc(sizeof(t_global));
 	init_global(av, global);
 	loop_1(philo, ac, av, global);
