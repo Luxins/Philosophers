@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 15:45:42 by ljahn             #+#    #+#             */
-/*   Updated: 2022/08/05 21:14:36 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 21:31:46 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	init_global(char **av, t_global *global)
 
 	pthread_mutex_init(&global->dead_mut, NULL);
 	pthread_mutex_init(&global->print_mut, NULL);
+	global->forks = malloc(ft_atoi(av[1]) * sizeof(pthread_mutex_t));
 	i = 0;
 	while (i < ft_atoi(av[1]))
 	{
@@ -89,9 +90,9 @@ int	main(int ac, char **av)
 	t_philo		*philo;
 	t_global	*global;
 
-	philo = alloc_philos();
 	if (check_philo(ac, av))
 		return (1);
+	philo = alloc_philos(ft_atoi(av[1]));
 	ft_bzero(philo, 200 * sizeof(t_philo));
 	global = malloc(sizeof(t_global));
 	init_global(av, global);
@@ -103,6 +104,7 @@ int	main(int ac, char **av)
 	pthread_mutex_destroy(&global->print_mut);
 	loop_4(philo, global, av);
 	free(philo);
+	free(global->forks);
 	free(global);
 	return (0);
 }

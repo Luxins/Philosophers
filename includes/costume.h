@@ -6,7 +6,7 @@
 /*   By: ljahn <ljahn@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/06 16:19:41 by ljahn             #+#    #+#             */
-/*   Updated: 2022/08/05 21:11:28 by ljahn            ###   ########.fr       */
+/*   Updated: 2022/08/05 21:31:35 by ljahn            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 typedef struct s_global
 {
-	pthread_mutex_t	forks[400];
+	pthread_mutex_t	*forks;
 	int				dead_var;
 	pthread_mutex_t	dead_mut;
 	pthread_mutex_t	print_mut;
@@ -89,7 +89,7 @@ void				loop_3(t_philo *philo, char **av);
 void				loop_4(t_philo *philo, t_global *global, char **av);
 
 //			memory.c
-t_philo				*alloc_philos(void);
+t_philo				*alloc_philos(int ph_num);
 void				free_philos(t_philo *philo);
 
 #endif
